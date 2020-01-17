@@ -7,9 +7,10 @@ from bs4 import BeautifulSoup
 from lxml import html
 from urllib3.exceptions import InsecureRequestWarning
 from hurry.filesize import size
+import os
 
 
-version = '0.1'
+version = '0.1.1'
 
 url_ = 'https://z1.fm/new?sort=date'
 
@@ -40,8 +41,9 @@ def get_songs(url):
 def download_song(song_url,filename):
 	requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) 
 	data = requests.get('https://z1.fm'+song_url,headers=headers,verify=False,stream=True)
-	with open(filename.replace('/','|')+'.mp3','wb') as file:
+	with open(filename.replace('/','|')+'.part','wb') as file:
 		file.write(data.content)
+	os.rename(f'{filename}.part',f'{filename}.mp3')
 
 
 songs = get_songs(url_)
@@ -49,6 +51,7 @@ songs = get_songs(url_)
 counter = 1
 
 for song in songs:
-	print('Скачивается:'+str(counter)+' из '+str(len(songs))+' '+ song[0]+'-'+song[1])
+	#print('Скачивается:'+str(counter)+' из '+str(len(songs))+' '+ song[0]+'-'+song[1])
+	print(f'Скачивается:{str(counter)} из {str(len(songs))} {song[0]} - {song[1]}')
 	download_song(song[2],song[0]+'-'+song[1])
 	counter += 1
